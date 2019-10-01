@@ -111,6 +111,7 @@ class TestSyncUsersAndGroups(unittest.TestCase):
         """
         Tests adding users and groups to ThoughtSpot.
         """
+        self.create_common_users_and_groups()
 
         sync = SyncUserAndGroups(
             tsurl=TS_URL,
@@ -137,7 +138,7 @@ class TestSyncUsersAndGroups(unittest.TestCase):
         user1 = auag.get_user("User1")
         self.assertEqual("User1", user1.name)
         self.assertEqual("User 1", user1.displayName)
-        self.assertEquals(["Group 1", "All"], user1.groupNames)
+        self.assertEquals(sorted(["Group 1", "All"]), sorted(user1.groupNames))
         self.assertEqual(Visibility.DEFAULT, user1.visibility)
 
         user2 = auag.get_user("User2")
