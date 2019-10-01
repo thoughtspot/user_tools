@@ -1,10 +1,9 @@
-from __future__ import print_function
-import sys
-import requests
-import logging
 import json
+import logging
+import requests
+import sys
 import time
-import requests.packages.urllib3
+
 from .model import User, Group, UsersAndGroups
 
 logger = logging.getLogger()
@@ -68,7 +67,8 @@ class UGJsonReader(object):
         json_list = json.loads(json_string)
         return self.parse_json(json_list)
 
-    def parse_json(self, json_list):
+    @staticmethod
+    def parse_json(json_list):
         """
         Parses a JSON list and creates a UserAndGroup object.
         :param json_list: List of JSON objects that represent users and groups.
@@ -89,7 +89,7 @@ class UGJsonReader(object):
                 )
                 # TODO remove after testing.
                 if auag.has_user(user.name):
-                    logging.warn("Duplicate user %s already exists." % user.name)
+                    logging.warning(f"Duplicate user {user.name} already exists.")
                 else:
                     auag.add_user(user)
             else:
@@ -164,11 +164,11 @@ class BaseApiInterface(object):
 
         if response.status_code == 204:
             self.cookies = response.cookies
-            logging.info("Successfully logged in as %s" % self.username)
+            logging.info(f"Successfully logged in as {self.username}")
         else:
-            logging.error("Failed to log in as %s" % self.username)
+            logging.error(f"Failed to log in as {self.username}")
             raise requests.ConnectionError(
-                "Error logging in to TS (%d)" % response.status_code,
+                f"Error logging in to TS ({response.status_code})",
                 response.text,
             )
 
@@ -252,7 +252,7 @@ class SyncUserAndGroups(BaseApiInterface):
         else:
             logging.error("Failed to get users and groups.")
             raise requests.ConnectionError(
-                "Error getting users and groups (%d)" % response.status_code,
+                f"Error getting users and groups ({response.status_code})",
                 response.text,
             )
 
@@ -406,7 +406,7 @@ class SyncUserAndGroups(BaseApiInterface):
             logging.error("Failed synced users and groups.")
             logging.info(response.text.encode("utf-8"))
             with open("ts_users_and_groups.json", "w") as outfile:
-                outfile.write(json_str.encode("utf-8"))
+                outfile.write(str(json_str.encode("utf-8")))
             raise requests.ConnectionError(
                 "Error syncing users and groups (%d)" % response.status_code,
                 response.text,
@@ -431,16 +431,16 @@ class SyncUserAndGroups(BaseApiInterface):
             json_list = json.loads(response.text)
             for h in json_list:
                 name = h["name"]
-                id = h["id"]
-                users[name] = id
+                user_id = h["id"]
+                users[name] = user_id
 
             user_list = []
             for u in usernames:
-                id = users.get(u, None)
-                if not id:
+                group_id = users.get(u, None)
+                if not group_id:
                     logging.warning("User %s not found, not attempting to delete this user." % u)
                 else:
-                    user_list.append(id)
+                    user_list.append(group_id)
 
             if not user_list:
                 logging.warning("No valid users to delete.")
@@ -494,19 +494,19 @@ class SyncUserAndGroups(BaseApiInterface):
             # for h in json_list["headers"]:
             for h in json_list:
                 name = h["name"]
-                id = h["id"]
-                groups[name] = id
+                group_id = h["id"]
+                groups[name] = group_id
 
             group_list = []
             for u in groupnames:
-                id = groups.get(u, None)
-                if not id:
+                group_id = groups.get(u, None)
+                if not group_id:
                     eprint(
                         "WARNING:  group %s not found, not attempting to delete this group."
                         % u
                     )
                 else:
-                    group_list.append(id)
+                    group_list.append(group_id)
 
             if not group_list:
                 eprint("No valid groups to delete.")
@@ -744,7 +744,7 @@ class TransferOwnershipApi(BaseApiInterface):
     @api_call
     def transfer_ownership(self, from_username, to_username):
         """
-        Transfer ownersip of all objects from one user to another.
+        Transfer ownership of all objects from one user to another.
         :param from_username: User name for the user to change the ownership for.
         :type from_username: str
         :param to_username: User name for the user to change the ownership to.
@@ -762,7 +762,5 @@ class TransferOwnershipApi(BaseApiInterface):
         else:
             logging.error("Failed to transfer ownership to %s." % to_username)
             raise requests.ConnectionError(
-                "Error (%d) transferring  ownership to %s:  %s"
-                % (response.status_code, to_username, response.text)
+                f"Error ({response.status_code}) transferring  ownership to {to_username}:  {response.text}"
             )
-

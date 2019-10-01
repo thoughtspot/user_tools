@@ -1,4 +1,3 @@
-from __future__ import print_function
 from collections import OrderedDict, namedtuple
 import json
 
@@ -53,7 +52,7 @@ def obj_to_json(obj):
             json_str += ","
 
         if value:
-            json_str += '"%s":%s' % (name, json.dumps(value))
+            json_str += f'"{name}":{json.dumps(value)}'
 
     json_str += "}"
 
@@ -83,7 +82,7 @@ class User(object):
         group_names=None,
         visibility=Visibility.DEFAULT,
         created=None,
-        id=None
+        user_id=None
     ):
         """
         Creates a new user object.
@@ -101,7 +100,7 @@ class User(object):
         :type visibility: str
         :param created: Epoch time when the user was created.
         :type created: str
-        :param id: GUID from TS for the user.  Optional and not used for synching.
+        :param user_id: GUID from TS for the user.  Optional and not used for syncing.
         :type created: str
         :return: Returns a new user object populated with the passed in values.
         :rtype: User
@@ -117,7 +116,7 @@ class User(object):
             for gn in group_names:
                 self.groupNames.append(gn)
         self.visibility = visibility
-        self.id = id
+        self.id = user_id
 
     def add_group(self, group_name):
         """
@@ -247,10 +246,10 @@ class UsersAndGroups(object):
         if not user:
             self.users[l_username] = u
         else:
-            print("WARNING:  Duplicate user %s already exists." % user.name)
+            print(f"WARNING:  Duplicate user {user.name} already exists.")
 
             if duplicate == UsersAndGroups.RAISE_ERROR_ON_DUPLICATE:
-                raise Exception("Duplicate user %s" % u)
+                raise Exception(f"Duplicate user {u}")
             elif duplicate == UsersAndGroups.IGNORE_ON_DUPLICATE:
                 pass  # keep the old one.
             elif duplicate == UsersAndGroups.OVERWRITE_ON_DUPLICATE:
@@ -259,7 +258,7 @@ class UsersAndGroups(object):
                 u.groupNames.extend(user.groupNames)
                 self.users[l_username] = u
             else:
-                raise Exception("Unknown duplication rule %s" % duplicate)
+                raise Exception(f"Unknown duplication rule {duplicate}")
 
     def has_user(self, user_name):
         """
@@ -317,7 +316,7 @@ class UsersAndGroups(object):
             self.groups[g.name] = g
         else:
             if duplicate == UsersAndGroups.RAISE_ERROR_ON_DUPLICATE:
-                raise Exception("Duplicate group %s" % g)
+                raise Exception(f"Duplicate group {g}")
             elif duplicate == UsersAndGroups.IGNORE_ON_DUPLICATE:
                 pass
             elif duplicate == UsersAndGroups.OVERWRITE_ON_DUPLICATE:
@@ -325,7 +324,7 @@ class UsersAndGroups(object):
             elif duplicate == UsersAndGroups.UPDATE_ON_DUPLICATE:
                 group.groupNames.extend(g.groupNames)
             else:
-                raise Exception("Unknown duplication rule %s" % duplicate)
+                raise Exception(f"Unknown duplication rule {duplicate}")
 
     def has_group(self, group_name):
         """
@@ -415,7 +414,7 @@ class UsersAndGroups(object):
 
         for user in self.users.values():
             # 5.3+ will require emails, but it's not clear if always.  Leaving this commented out for now.
-            #if not user.mail:
+            # if not user.mail:
             #    issue = "user %s doesn't have a required email address." % user.name
             #    print(issue)
             #    issues.append(issue)
@@ -423,9 +422,7 @@ class UsersAndGroups(object):
 
             for parent_group in user.groupNames:
                 if parent_group not in self.groups:
-                    issue = "user group %s for user %s does not exist" % (
-                        parent_group, user.name
-                    )
+                    issue = f"user group {parent_group} for user {user.name} does not exist"
                     print(issue)
                     issues.append(issue)
                     valid = False
@@ -433,9 +430,7 @@ class UsersAndGroups(object):
         for group in self.groups.values():
             for parent_group in group.groupNames:
                 if parent_group not in self.groups:
-                    issue = "parent group %s for group %s does not exist" % (
-                        parent_group, group.name
-                    )
+                    issue = f"parent group {parent_group} for group {group.name} does not exist"
                     print(issue)
                     issues.append(issue)
                     valid = False

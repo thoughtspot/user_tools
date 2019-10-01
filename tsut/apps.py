@@ -1,7 +1,6 @@
 import argparse
 from abc import abstractmethod
 import copy
-import json
 
 from tsut.api import SyncUserAndGroups
 from tsut.model import UsersAndGroups
@@ -96,7 +95,7 @@ class ArgumentUser(object):
         for req_arg in self._required_arguments:
             valid = (req_arg in dict_args.keys() and dict_args[req_arg])
             if not valid:
-                issues.append("Missing %s argument." % req_arg)
+                issues.append(f"Missing {req_arg} argument.")
 
         return issues == [], issues
 
@@ -345,7 +344,7 @@ class TSUGOutputWriter(TSUGWriter):
         """
 
         if args.output_type in ["json", "excel", "xls"] and not args.filename:
-            raise Exception("Output type of %s requires a filename parameter." % args.output_type)
+            raise Exception(f"Output type of {args.output_type} requires a filename parameter.")
 
         writer = None
         if args.output_type == "stdout":
@@ -440,7 +439,6 @@ class TSUserGroupSyncApp(object):
 
         self._args = parser.parse_args()
 
-
     @staticmethod
     def _get_error_msg(issues):
         """
@@ -452,7 +450,7 @@ class TSUserGroupSyncApp(object):
         """
         err_msg = "Invalid arguments: \n"
         for issue in issues:
-            err_msg += "  %s\n" % issue
+            err_msg += f"  {issue}\n"
 
         return err_msg
 

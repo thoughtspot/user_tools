@@ -19,6 +19,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
+
 def run_app():
     parser = argparse.ArgumentParser()
     parser.add_argument("--filename", help="file containing data to load.")
@@ -35,6 +36,7 @@ def run_app():
 
     json.loads(json_data)
     print("valid JSON")  # only prints if valid.
+
 
 if __name__ == "__main__":
     run_app()

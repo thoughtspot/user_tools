@@ -1,7 +1,5 @@
 #!/usr/bin/python
 
-import argparse
-
 from tsut.apps import TSUserGroupSyncApp, TSUGSyncReader, TSUGOutputWriter
 
 """

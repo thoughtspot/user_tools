@@ -1,9 +1,9 @@
-from __future__ import print_function
 import ast
-import xlrd  # reading Excel
-from .api import UsersAndGroups, User, Group, eprint
 import json
 from openpyxl import Workbook
+import xlrd  # reading Excel
+
+from .api import UsersAndGroups, User, Group, eprint
 
 """
 Copyright 2018 ThoughtSpot
@@ -116,7 +116,8 @@ class UGXLSWriter(object):
             ws.cell(column=6, row=cnt, value=group.created)
             cnt += 1
 
-    def _write_header(self, worksheet, cols):
+    @staticmethod
+    def _write_header(worksheet, cols):
         """
         Writes the header for the given worksheet in row 1.
         :param worksheet:  Worksheet to write to.
@@ -254,7 +255,7 @@ class UGXLSReader(object):
                     user, duplicate=UsersAndGroups.RAISE_ERROR_ON_DUPLICATE
                 )
             except:
-                eprint("Error reading user with name %s" % username)
+                eprint(f"Error reading user with name {username}")
 
     def _read_groups_from_workbook(self):
         """
@@ -292,5 +293,5 @@ class UGXLSReader(object):
                 self.users_and_groups.add_group(
                     group, duplicate=UsersAndGroups.RAISE_ERROR_ON_DUPLICATE
                 )
-            except:
+            except Exception:
                 eprint("Error reading group with name %s" % group_name)
