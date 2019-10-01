@@ -28,7 +28,8 @@ TS_PASSWORD = "admin"
 class TestDeleteUsersAndGroups(unittest.TestCase):
     """Tests deleting users and groups."""
 
-    def create_common_users_and_groups(self):
+    @staticmethod
+    def create_common_users_and_groups():
         """
         Creates a set of users and groups that can be used in multiple tests.
         """

@@ -85,7 +85,7 @@ class UGJsonReader(object):
                     group_names=value.get("groupNames", None),
                     visibility=value.get("visibility", None),
                     created=value.get("created", None),
-                    id=value.get("id", None)
+                    user_id=value.get("id", None)
                 )
                 # TODO remove after testing.
                 if auag.has_user(user.name):
@@ -278,7 +278,7 @@ class SyncUserAndGroups(BaseApiInterface):
                     group_names=value.get("groupNames", None),
                     visibility=value.get("visibility", None),
                     created=value.get("created", None),
-                    id=value.get("id", None)
+                    user_id=value.get("id", None)
                 )
                 users.append(user)
             return users
