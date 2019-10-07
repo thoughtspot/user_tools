@@ -61,7 +61,7 @@ Then you run the application and it does the following:
 ### Example
 
 The `user_tools_example.py` file contains an example of a trivial, custom sync application.  It reads from a 
-delimited text filew and writes to a delimited text file.  The details of the method are not that important, so 
+delimited text file and writes to a delimited text file.  The details of the method are not that important, so 
 much as the structure.  You can use this example both as a reference and as a template for creating your own custom 
 sync applications.
 
