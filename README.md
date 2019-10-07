@@ -170,5 +170,8 @@ optional arguments:
   --to_user TO_USER     User to transfer ownership to.
 ~~~
 
-## Creating custom synchronizations
+## Writing Custom Scripts
 
+While the pre-defined tools are convenient, they don't cover all possible scenarios.
+See the [custom folder]("./custom/README.md") for details on how to write your own
+sync script.
