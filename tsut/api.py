@@ -39,7 +39,7 @@ def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
 
-class UGJsonReader(object):
+class UGJsonReader:
     """
     Reads a user / group structure from JSON and returns a UserGroup object.
     """
@@ -126,7 +126,7 @@ def api_call(f):
     return wrap
 
 
-class BaseApiInterface(object):
+class BaseApiInterface:
     """
     Provides basic support for calling the ThoughtSpot APIs, particularly for logging in.
     """
@@ -572,7 +572,7 @@ class SyncUserAndGroups(BaseApiInterface):
             )
 
 
-class Privileges(object):
+class Privileges:
     """
     Contains the various privileges that groups can have.
     """

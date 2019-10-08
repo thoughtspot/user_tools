@@ -26,7 +26,7 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR TH
 # Helper functions. ----------------------------------------------------------------------
 
 
-class UGXLSWriter(object):
+class UGXLSWriter:
     """
     Writes users and groups to an Excel spreadsheet.
     """
@@ -127,7 +127,7 @@ class UGXLSWriter(object):
             worksheet.cell(column=(ccnt + 1), row=1, value=cols[ccnt])
 
 
-class UGXLSReader(object):
+class UGXLSReader:
     """
     Reads user and group info from an Excel file that is formatted the same as the UGXLSWriter writes.
     """

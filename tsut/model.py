@@ -63,12 +63,12 @@ def obj_to_json(obj):
 # Note:  could use enum in Python 3
 
 
-class Visibility(object):
+class Visibility:
     DEFAULT = "DEFAULT"
     NON_SHAREABLE = "NON_SHARABLE"
 
 
-class User(object):
+class User:
     """
     Represents a user to TS.
     """
@@ -144,7 +144,7 @@ class User(object):
         return self.to_json()
 
 
-class Group(object):
+class Group:
     """
     Represents a group to TS.
     """
@@ -217,7 +217,7 @@ class Group(object):
 ValidationResults = namedtuple("ValidationResults", ["result", "issues"])
 
 
-class UsersAndGroups(object):
+class UsersAndGroups:
     """
     Container for created users and groups.  Can be converted to JSON and sent to the TS API.
     """

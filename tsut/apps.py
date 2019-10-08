@@ -52,7 +52,7 @@ def add_cnx_parser_arguments(parser):
     parser.add_argument("--disable_ssl", action="store_true", help="Will ignore SSL errors.", default=True)
 
 
-class ArgumentUser(object):
+class ArgumentUser:
     """
     Class that uses arguments.  Used to get the arguments expected and (optionally) validate.
     """
@@ -404,7 +404,7 @@ class TSUGSyncWriter(TSUGWriter):
                                    batch_size=args.batch_size, merge_groups=args.merge_groups)
 
 
-class TSUserGroupSyncApp(object):
+class TSUserGroupSyncApp:
     """
     Class for applications that use the user/group web services.
     This class allows new sync scripts to created via composition by assigning to/from classes.
