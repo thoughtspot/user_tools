@@ -7,7 +7,7 @@ the tools and how to write your own custom applications based on the API wrapper
 
 ## Packages and scripts
 
-The tools can be split into two broad categories.  The first are the scripts that you can run to directly do things.  
+The tools can be split into two broad categories.  The first category contains the scripts that you can run to directly do things.  
 For example, the `get_usersy` script will let you get all of the users and groups from a running ThoughtSpot cluster.
 
 The second category are the ThoughtSpot Web API Python wrappers.  These are all contained in the tsut package and 
@@ -20,7 +20,7 @@ User Tools is installed with the same process as other TS Python tools.
 
 You can install using `pip install --upgrade git+https://github.com/thoughtspot/user_tools`
 
-See the general [documentation](https://github.com/thoughtspot/tree/master/python_tools) on setting 
+See the general [documentation](https://github.com/thoughtspot/community-tools/tree/master/python_tools) on setting 
 up your environment and installing using `pip`.
 
 ## Running the pre-built tools

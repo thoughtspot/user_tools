@@ -177,7 +177,7 @@ class TSUGXLSXReader(TSUGReader):
         :type parser: argparse.ArgumentParser
         """
         add_cnx_parser_arguments(parser)
-        parser.add_argument("--filename", help="Name of file to write to.")
+        parser.add_argument("--filename", help="Name of file to read from.")
 
     def get_users_and_groups(self, args):
         """
@@ -378,13 +378,15 @@ class TSUGSyncWriter(TSUGWriter):
         """
         add_cnx_parser_arguments(parser)
         parser.add_argument("--remove_deleted", action="store_true",
-                            help="Will remove users not in the load.  Cannot be used with batch_size.", default=False)
+                            help="Will remove users not in the synced list.  Cannot be used with batch_size.",
+                            default=False)
         parser.add_argument("--apply_changes", action="store_true",
-                            help="Will apply changes.  Default is False for testing.", default=False)
+                            help="Will apply changes when syncing users and groups.  Default is False for testing.",
+                            default=False)
         parser.add_argument("--batch_size", default=-1, type=int,
-                            help="Loads the users in batches.  Needed to avoid timeouts for large groups of users.")
+                            help="Loads the users in batches of the given size to avoid timeouts.")
         parser.add_argument("--merge_groups", default=False, action="store_true",
-                            help="Merge new groups with groups in ThoughtSpot.")
+                            help="Merge user groups with ones they are already in instead of replacing.")
 
     def write_user_and_groups(self, args, ugs):
         """
