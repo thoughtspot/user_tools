@@ -93,25 +93,27 @@ optional arguments:
 Synchronized users and groups from an Excel document in the format created by `get_users` to a ThoughtSpot cluster.
 
 ~~~
-usage: sync_from_excel [-h] [--filename FILENAME] [--ts_url TS_URL]
+usage: sync_from_excel.py [-h] [--filename FILENAME] [--ts_url TS_URL]
                           [--username USERNAME] [--password PASSWORD]
                           [--disable_ssl] [--remove_deleted] [--apply_changes]
                           [--batch_size BATCH_SIZE] [--merge_groups]
 
 optional arguments:
   -h, --help            show this help message and exit
-  --filename FILENAME   Name of file to write to.
+  --filename FILENAME   Name of file to read from.
   --ts_url TS_URL       URL to ThoughtSpot, e.g. https://myserver
   --username USERNAME   Name of the user to log in as.
   --password PASSWORD   Password for login of the user to log in as.
   --disable_ssl         Will ignore SSL errors.
-  --remove_deleted      Will remove users not in the load. Cannot be used with
-                        batch_size.
-  --apply_changes       Will apply changes. Default is False for testing.
+  --remove_deleted      Will remove users not in the synced list. Cannot be
+                        used with batch_size.
+  --apply_changes       Will apply changes when syncing users and groups.
+                        Default is False for testing.
   --batch_size BATCH_SIZE
-                        Loads the users in batches. Needed to avoid timeouts
-                        for large groups of users.
-  --merge_groups        Merge new groups with groups in ThoughtSpot.
+                        Loads the users in batches of the given size to avoid
+                        timeouts.
+  --merge_groups        Merge user groups with ones they are already in
+                        instead of replacing.
 ~~~
 
 
