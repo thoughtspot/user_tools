@@ -383,11 +383,9 @@ class SyncUserAndGroups(BaseApiInterface):
         logging.info("%s" % json_str)
         json.loads(json_str)  # do a load to see if it breaks due to bad JSON.
 
-        # FIX. MB 04/11/2019: Use the tempfile module to locate the temp folder cross platform as this will
-        # be different on Mac/Linux/Win etc
+        # Get the temp folder from the environment settings, so it will work cross platform.
         logging.debug("Using temp folder:"+tempfile.gettempdir())
-        tmp_file = tempfile.gettempdir()+"/ug.json.%d" % time.time()
-        # tmp_file = "/tmp/ug.json.%d" % time.time()
+        tmp_file = tempfile.gettempdir() + "/ug.json.%d" % time.time()
 
         with open(tmp_file, "w") as out:
             out.write(json_str)
