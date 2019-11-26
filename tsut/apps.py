@@ -155,7 +155,7 @@ class TSUGSyncReader(TSUGReader):
         sync = SyncUserAndGroups(tsurl=args.ts_url, username=args.username,
                                  password=args.password, disable_ssl=args.disable_ssl)
         ugs = sync.get_all_users_and_groups()
-        print(ugs.to_json())
+        #print(ugs.to_json())
         return ugs
 
 

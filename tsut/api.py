@@ -3,6 +3,7 @@ import logging
 import requests
 import sys
 import time
+import tempfile
 
 from .model import User, Group, UsersAndGroups
 
@@ -382,7 +383,10 @@ class SyncUserAndGroups(BaseApiInterface):
         logging.info("%s" % json_str)
         json.loads(json_str)  # do a load to see if it breaks due to bad JSON.
 
-        tmp_file = "/tmp/ug.json.%d" % time.time()
+        # Get the temp folder from the environment settings, so it will work cross platform.
+        logging.debug("Using temp folder:"+tempfile.gettempdir())
+        tmp_file = tempfile.gettempdir() + "/ug.json.%d" % time.time()
+
         with open(tmp_file, "w") as out:
             out.write(json_str)
 
