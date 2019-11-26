@@ -1,6 +1,7 @@
 import argparse
 from abc import abstractmethod
 import copy
+import os
 
 from tsut.api import SyncUserAndGroups
 from tsut.model import UsersAndGroups
@@ -314,6 +315,40 @@ class TSUGStdOutWriter(TSUGWriter):
         print(ugs.to_json())
 
 
+class TSUGCSVWriter(TSUGWriter):
+    """
+    Writes users and groups to a file as username|group pairs.
+    """
+    def __init__(self):
+        """
+        Creates a new writer for csv files out.
+        """
+        super().__init__(
+            required_arguments=["filename"])
+
+    def add_parser_arguments(self, parser):
+        """
+        :param parser: The parser to add arguments to.
+        :type parser: argparse.ArgumentParser
+        """
+        parser.add_argument("--filename", help="Name of the file to write to.")
+
+    def write_user_and_groups(self, args, ugs):
+        """
+        Writes the users and groups to a csv file.
+        :param args: Command line arguments for writing.  None expected or used.
+        :type args: argparse.Namespace
+        :param ugs: Users and groups to write.
+        :type ugs: UsersAndGroups
+        :return:  None
+        """
+        with open(args.filename, "w") as csvfile:
+            csvfile.write('"user"|"group"\n')
+            for user in ugs.get_users():
+                for group_name in user.groupNames:
+                    csvfile.write(f'"{user.name}"|"{group_name}"\n')
+
+
 class TSUGOutputWriter(TSUGWriter):
     """
     Writer that will write users and groups to a variety of output types (standard out, Excel, or JSON)
@@ -330,8 +365,9 @@ class TSUGOutputWriter(TSUGWriter):
         :param parser: The parser to add arguments to.
         :type parser: argparse.ArgumentParser
         """
-        parser.add_argument("--output_type", help="One of stdout, xls, excel, or json.")
-        parser.add_argument("--filename", help="Name of file to write to if not stdout.  Required for Excel and JSON.")
+        parser.add_argument("--output_type", help="One of stdout, csv, xls, excel, or json.")
+        parser.add_argument("--filename",
+                            help="Name of file to write to if not stdout.  Required for CSV, Excel and JSON.")
 
     def write_user_and_groups(self, args, ugs):
         """
@@ -343,12 +379,14 @@ class TSUGOutputWriter(TSUGWriter):
         :return:  None
         """
 
-        if args.output_type in ["json", "excel", "xls"] and not args.filename:
+        if args.output_type in ["csv", "json", "excel", "xls"] and not args.filename:
             raise Exception(f"Output type of {args.output_type} requires a filename parameter.")
 
         writer = None
         if args.output_type == "stdout":
             writer = TSUGStdOutWriter()
+        if args.output_type == "csv":
+            writer = TSUGCSVWriter()
         elif args.output_type == "json":
             writer = TSUGJsonWriter()
         elif args.output_type == "excel" or args.output_type == "xls":
