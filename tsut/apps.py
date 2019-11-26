@@ -343,7 +343,7 @@ class TSUGCSVWriter(TSUGWriter):
         :return:  None
         """
         with open(args.filename, "w") as csvfile:
-            csvfile.write('"user"|"group"\n')
+            csvfile.write('"username"|"groupname"\n')
             for user in ugs.get_users():
                 for group_name in user.groupNames:
                     csvfile.write(f'"{user.name}"|"{group_name}"\n')
