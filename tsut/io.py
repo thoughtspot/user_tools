@@ -69,7 +69,6 @@ class UGXLSWriter:
                 "Email",
                 "Groups",
                 "Visibility",
-                "Created",
                 "ID"
             ],
         )
@@ -81,7 +80,6 @@ class UGXLSWriter:
             ws.cell(column=4, row=cnt, value=user.mail)
             ws.cell(column=5, row=cnt, value=json.dumps(user.groupNames))
             ws.cell(column=6, row=cnt, value=user.visibility)
-            ws.cell(column=7, row=cnt, value=user.created)
             ws.cell(column=8, row=cnt, value=user.id)
             cnt += 1
 
@@ -103,7 +101,7 @@ class UGXLSWriter:
                 "Description",
                 "Groups",
                 "Visibility",
-                "Created",
+                "Privileges",
             ],
         )
         cnt = 2  # start after header.
@@ -113,7 +111,7 @@ class UGXLSWriter:
             ws.cell(column=3, row=cnt, value=group.description)
             ws.cell(column=4, row=cnt, value=json.dumps(group.groupNames))
             ws.cell(column=5, row=cnt, value=group.visibility)
-            ws.cell(column=6, row=cnt, value=group.created)
+            ws.cell(column=6, row=cnt, value=json.dumps(group.privileges))
             cnt += 1
 
     @staticmethod

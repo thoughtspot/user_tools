@@ -143,6 +143,8 @@ class TSUGSyncReader(TSUGReader):
         :type parser: argparse.ArgumentParser
         """
         add_cnx_parser_arguments(parser)
+        parser.add_argument("--group_privileges", action="store_true", default=False,
+                            help="Will also retrieve the group privileges for all groups.  This could be slow.")
 
     def get_users_and_groups(self, args):
         """
@@ -154,7 +156,7 @@ class TSUGSyncReader(TSUGReader):
         """
         sync = SyncUserAndGroups(tsurl=args.ts_url, username=args.username,
                                  password=args.password, disable_ssl=args.disable_ssl)
-        ugs = sync.get_all_users_and_groups()
+        ugs = sync.get_all_users_and_groups(get_group_privileges=args.group_privileges)
         #print(ugs.to_json())
         return ugs
 

@@ -1,3 +1,4 @@
+import copy
 import json
 import logging
 import requests
@@ -150,6 +151,7 @@ class BaseApiInterface:
         self.password = password
         self.cookies = None
         self.session = requests.Session()
+        self.disable_ssl = disable_ssl
         if disable_ssl:
             self.session.verify = False
         self.session.headers = {"X-Requested-By": "ThoughtSpot"}
@@ -213,7 +215,7 @@ class SyncUserAndGroups(BaseApiInterface):
         username,
         password,
         disable_ssl=False,
-        global_password=False,
+        global_password=False
     ):
         """
         Creates a new sync object and logs into ThoughtSpot
@@ -233,9 +235,11 @@ class SyncUserAndGroups(BaseApiInterface):
         self.global_password = global_password
 
     @api_call
-    def get_all_users_and_groups(self):
+    def get_all_users_and_groups(self, get_group_privileges=False):
         """
         Returns all users and groups from the server.
+        :param get_group_privileges: If true, will also get the privileges for groups.
+        :type get_group_privileges: bool
         :return: All users and groups from the server.
         :rtype: UsersAndGroups
         """
@@ -245,9 +249,19 @@ class SyncUserAndGroups(BaseApiInterface):
         if response.status_code == 200:
             logging.info("Successfully got users and groups.")
             logging.debug(response.text)
+
             json_list = json.loads(response.text)
             reader = UGJsonReader()
             auag = reader.parse_json(json_list=json_list)
+
+            if get_group_privileges:
+                group_priv_api = SetGroupPrivilegesAPI(tsurl=self.tsurl, username=self.username,
+                                                       password=self.password, disable_ssl=self.disable_ssl)
+                for group in auag.get_groups():
+                    group_privs = group_priv_api.get_privileges_for_group(group_name=group.name)
+                    group.privileges = copy.copy(group_privs)
+
+
             return auag
 
         else:

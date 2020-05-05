@@ -1,5 +1,7 @@
 from collections import OrderedDict, namedtuple
+import copy
 import json
+
 
 """
 Copyright 2018 ThoughtSpot
@@ -156,6 +158,7 @@ class Group:
         description=None,
         group_names=None,
         visibility=Visibility.DEFAULT,
+        privileges=None,
         created=None,
     ):
         """
@@ -170,6 +173,8 @@ class Group:
         :type group_names: list of str
         :param visibility: Indicates if the group is visibility or default.
         :type visibility: str
+        :param privileges: The privileges for the group.
+        :type privileges: list of str
         :param created: The epoch date when the group was created.
         :type created: str
         :return: Returns a new group object populated with the passed in values.
@@ -180,6 +185,7 @@ class Group:
         self.displayName = display_name if not None else name
         self.description = description
         self.visibility = visibility
+        self.privileges = copy.copy(privileges) if not None else []
         self.created = created
         self.groupNames = list()
         if group_names:
