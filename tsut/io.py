@@ -68,8 +68,7 @@ class UGXLSWriter:
                 "Display Name",
                 "Email",
                 "Groups",
-                "Visibility",
-                "ID"
+                "Visibility"
             ],
         )
         cnt = 2  # start after header.
@@ -80,7 +79,6 @@ class UGXLSWriter:
             ws.cell(column=4, row=cnt, value=user.mail)
             ws.cell(column=5, row=cnt, value=json.dumps(user.groupNames))
             ws.cell(column=6, row=cnt, value=user.visibility)
-            ws.cell(column=8, row=cnt, value=user.id)
             cnt += 1
 
     def _write_groups(self, workbook, groups):
@@ -111,7 +109,8 @@ class UGXLSWriter:
             ws.cell(column=3, row=cnt, value=group.description)
             ws.cell(column=4, row=cnt, value=json.dumps(group.groupNames))
             ws.cell(column=5, row=cnt, value=group.visibility)
-            ws.cell(column=6, row=cnt, value=json.dumps(group.privileges))
+            privileges = group.privileges if group.privileges else []
+            ws.cell(column=6, row=cnt, value=json.dumps(privileges))
             cnt += 1
 
     @staticmethod
