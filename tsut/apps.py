@@ -83,6 +83,18 @@ class ArgumentUser:
         """
         return self._required_arguments
 
+    def _clean_arguments(self, dict_args):
+        """
+        Does any argument cleanup.
+        :param dict_args: The arguments.
+        :type dict_args: dict
+        :return: None
+        """
+        # slight hack to account for a common problem.
+        ts_url = dict_args.get("ts_url", None)
+        if ts_url and ts_url.endswith ("/"):
+            dict_args["ts_url"] = ts_url[:-1]
+
     def has_valid_arguments(self, args):
         """
         Validates arguments.  By default just checks to see if the required ones are present (not None).
@@ -93,6 +105,8 @@ class ArgumentUser:
         """
         issues = []
         dict_args = vars(args)  # convert Namespace to dictionary.
+        self._clean_arguments(dict_args=dict_args)
+
         for req_arg in self._required_arguments:
             valid = (req_arg in dict_args.keys() and dict_args[req_arg])
             if not valid:
