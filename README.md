@@ -8,7 +8,7 @@ the tools and how to write your own custom applications based on the API wrapper
 ## Packages and scripts
 
 The tools can be split into two broad categories.  The first category contains the scripts that you can run to directly do things.  
-For example, the `get_usersy` script will let you get all of the users and groups from a running ThoughtSpot cluster.
+For example, the `get_users` script will let you get all of the users and groups from a running ThoughtSpot cluster.
 
 The second category are the ThoughtSpot Web API Python wrappers.  These are all contained in the tsut package and 
 categorized into modules based on functionality, such as writing sync applications, modeling users and groups and 
@@ -72,8 +72,8 @@ optional arguments:
 Retrieves all of the users and groups from a ThoughtSpot cluster and writes them to the output, a JSON file or Excel.
 
 ~~~
-usage: get_users [-h] [--ts_url TS_URL] [--username USERNAME]
-                    [--password PASSWORD] [--disable_ssl]
+usage: get_users.py [-h] [--ts_url TS_URL] [--username USERNAME]
+                    [--password PASSWORD] [--disable_ssl] [--group_privileges]
                     [--output_type OUTPUT_TYPE] [--filename FILENAME]
 
 optional arguments:
@@ -82,10 +82,12 @@ optional arguments:
   --username USERNAME   Name of the user to log in as.
   --password PASSWORD   Password for login of the user to log in as.
   --disable_ssl         Will ignore SSL errors.
+  --group_privileges    Will also retrieve the group privileges for all
+                        groups. This could be slow.
   --output_type OUTPUT_TYPE
-                        One of stdout, xls, excel, or json.
+                        One of stdout, csv, xls, excel, or json.
   --filename FILENAME   Name of file to write to if not stdout. Required for
-                        Excel and JSON.
+                        CSV, Excel and JSON.
 ~~~
 
 ### sync_from_excel
