@@ -439,6 +439,8 @@ class TSUGSyncWriter(TSUGWriter):
                             default=False)
         parser.add_argument("--batch_size", default=-1, type=int,
                             help="Loads the users in batches of the given size to avoid timeouts.")
+        parser.add_argument("--create_groups", default=False, action="store_true",
+                            help="Creates user groups if they don't exist and are not specified.")
         parser.add_argument("--merge_groups", default=False, action="store_true",
                             help="Merge user groups with ones they are already in instead of replacing.")
 
@@ -457,7 +459,9 @@ class TSUGSyncWriter(TSUGWriter):
         sync.sync_users_and_groups(users_and_groups=ugs,
                                    apply_changes=args.apply_changes,
                                    remove_deleted=args.remove_deleted,
-                                   batch_size=args.batch_size, merge_groups=args.merge_groups)
+                                   batch_size=args.batch_size,
+                                   merge_groups=args.merge_groups,
+                                   create_groups=args.create_groups)
 
 
 class TSUserGroupSyncApp:

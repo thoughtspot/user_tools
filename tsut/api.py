@@ -306,7 +306,7 @@ class SyncUserAndGroups(BaseApiInterface):
                 )
 
     def sync_users_and_groups(self, users_and_groups, apply_changes=True,
-                              remove_deleted=False, batch_size=-1, merge_groups=False):
+                              remove_deleted=False, batch_size=-1, create_groups=False, merge_groups=False):
         """
         Syncs users and groups.
         :param users_and_groups: List of users and groups to sync.
@@ -318,6 +318,9 @@ class SyncUserAndGroups(BaseApiInterface):
         :param batch_size: The size of users to batch into a load.  Note that this cannot be combined with
         remove_deleted.
         :type batch_size: int
+        :param create_groups: Flag to indicate if groups should be created.  True means add to groups that users
+        are assigned to, but are not in the group list.
+        :type create_groups: bool
         :param merge_groups: Flag to indicate if groups should be merged.  True means add to old groups.
         :type merge_groups: bool
         """
@@ -328,8 +331,12 @@ class SyncUserAndGroups(BaseApiInterface):
         if remove_deleted and batch_size > 0:
             raise Exception("Cannot have remove_deleted True and batch_size > 0")
 
+        existing_ugs = self.get_all_users_and_groups() if (create_groups or merge_groups) else None
+
+        if create_groups:
+            self.__add_all_user_groups(existing_ugs, users_and_groups)
+
         if merge_groups:
-            existing_ugs = self.get_all_users_and_groups()
             SyncUserAndGroups.__merge_groups_into_new(existing_ugs, users_and_groups)
 
         # Sync in batches
@@ -354,6 +361,32 @@ class SyncUserAndGroups(BaseApiInterface):
         else:
             self._sync_users_and_groups(users_and_groups=users_and_groups,
                                         apply_changes=apply_changes, remove_deleted=remove_deleted)
+
+    @staticmethod
+    def __add_all_user_groups(original_ugs, new_ugs):
+        """
+        Causes groups that users are assigned to, but not in the groups, to be added.  This will first get existing
+        groups to make sure existing groups aren't updated.
+        :param original_ugs: The original users and groups, possibly from ThoughtSpot.
+        :type original_ugs: UsersAndGroups
+        :param new_ugs: The new users and groups that will be synced.
+        :type new_ugs: UsersAndGroups
+        :return: Nothing.  New users and groups list is updated.
+        :rtype: None
+        """
+        new_user_groups = set()
+        for user in new_ugs.get_users():
+            new_user_groups.update(user.groupNames)
+
+        for group_name in new_user_groups:
+            if not new_ugs.get_group(group_name=group_name): # The group isn't in the new list.
+                old_group = original_ugs.get_group(group_name=group_name)
+                if old_group:  # the group is in the old list, so use that one.
+                    new_ugs.add_group(g=old_group)
+                else:
+                    new_ugs.add_group(Group(name=group_name, display_name=group_name,
+                                            description="Implicitely created group."))
+
 
     @staticmethod
     def __merge_groups_into_new(original_ugs, new_ugs):

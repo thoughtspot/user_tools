@@ -1,4 +1,5 @@
 import ast
+import copy
 import json
 from openpyxl import Workbook
 import xlrd  # reading Excel
@@ -21,9 +22,7 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR TH
 
 # -------------------------------------------------------------------------------------------------------------------
 
-"""Classes to work with the TS public user and list APIs"""
-
-# Helper functions. ----------------------------------------------------------------------
+"""Classes to read and write users and groups."""
 
 
 class UGXLSWriter:
@@ -292,3 +291,69 @@ class UGXLSReader:
                 )
             except Exception:
                 eprint("Error reading group with name %s" % group_name)
+
+class UGCSVReader:
+    """
+    Reads users and groups from CSV.  All users and groups are in a single file.
+    """
+    DEFAULT_GROUP_FIELD_MAPPING = {
+        "name": "Group Name",
+        "display_name": "Group Display Name",
+        "description": "Group Description",
+        "group_names": "Group Names",
+        "visibility": "Group Visibility",
+        "privileges": "Group Privileges"
+    }
+    DEFAULT_USER_FIELD_MAPPING = {
+        "name": "User Name",
+        "display_name": "User Display Name",
+        "password": "User Password",
+        "description": "User Description",
+        "group_names": "User Group Names",
+        "visibility": "User Visibility"
+    }
+
+    def __init__(self,
+                 user_field_mapping=DEFAULT_USER_FIELD_MAPPING,
+                 group_field_mapping=DEFAULT_GROUP_FIELD_MAPPING,
+                 delimiter=","):
+        """
+        Creates a new CSV reader that can read based on the field mapping and delimiter.  While this class can
+        cause groups to be created, the primary use is to have groups that will be
+        :param user_field_mapping: The mapping of columns to values for users.
+        :type user_field_mapping: dict of str:str
+        :param group_field_mapping: The mapping of columns to values for groups.
+        :type group_field_mapping: dict of str:str
+        :param delimiter: The delimiter to use.
+        """
+        self.user_field_mapping = copy.copy(user_field_mapping)
+        self.group_field_mapping = copy.copy(group_field_mapping)
+        self.delimiter = delimiter
+
+        self.validate_fields()
+
+    def validate_fields(self):
+        """
+        Verifies that the minimal required field mappings exist.  Raises a ValueError if not.
+        :return: None
+        :raises: ValueError
+        """
+        if "name" not in self.user_field_mapping.keys():
+            raise ValueError("Missing name parameter for users.")
+        if "name" not in self.group_field_mapping.keys():
+            raise ValueError("Missing name parameter for groups.")
+
+    def read_from_file(self, user_file, group_file=None):
+        """
+        Loads users and groups from the files.  If the group_file is not provided, the groups will be created from the
+        user file with just the names.
+        :param user_file: Path to the user file to read from.
+        :type user_file: str
+        :param group_file: Path to the group file to read from.
+        :type group_file: str
+        :return: Users and groups object.
+        :rtype: UsersAndGroups
+        """
+        pass
+
+

@@ -98,7 +98,8 @@ Synchronized users and groups from an Excel document in the format created by `g
 usage: sync_from_excel.py [-h] [--filename FILENAME] [--ts_url TS_URL]
                           [--username USERNAME] [--password PASSWORD]
                           [--disable_ssl] [--remove_deleted] [--apply_changes]
-                          [--batch_size BATCH_SIZE] [--merge_groups]
+                          [--batch_size BATCH_SIZE] [--create_groups]
+                          [--merge_groups]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -114,6 +115,8 @@ optional arguments:
   --batch_size BATCH_SIZE
                         Loads the users in batches of the given size to avoid
                         timeouts.
+  --create_groups       Creates user groups if they don't exist and are not
+                        specified.
   --merge_groups        Merge user groups with ones they are already in
                         instead of replacing.
 ~~~
