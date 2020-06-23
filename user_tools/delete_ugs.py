@@ -28,10 +28,16 @@ This script will retrieve users and groups and write the results to an output fi
 
 def run_app():
     """Runs the application to delete users and groups."""
+
     args = get_args()
     if valid_args(args=args):
+
+        if args.ts_url and args.ts_url.endswith ("/"):
+            args.ts_url = args.ts_url[:-1]
+
         sync = SyncUserAndGroups(tsurl=args.ts_url,
-                                 username=args.username, password=args.password, disable_ssl=args.disable_ssl)
+                                 username=args.username, password=args.password,
+                                 disable_ssl=args.disable_ssl)
 
         if args.users:
             delete_users(args, sync)
