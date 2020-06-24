@@ -354,7 +354,7 @@ class SyncUserAndGroups(BaseApiInterface):
                         ug_batch.add_group(users_and_groups.get_group(group_name=group_name),
                                            duplicate=UsersAndGroups.IGNORE_ON_DUPLICATE)
 
-                self._sync_users_and_groups(users_and_groups=users_and_groups,
+                self._sync_users_and_groups(users_and_groups=ug_batch,
                                             apply_changes=apply_changes, remove_deleted=remove_deleted)
 
         # Sync all users and groups.
