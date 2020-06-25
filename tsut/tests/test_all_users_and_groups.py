@@ -122,3 +122,28 @@ class TestAllUsersAndGroups(unittest.TestCase):
 
         results = auag.is_valid()
         self.assertFalse(results.result)
+
+    def test_from_json(self):
+        json_str = """
+[
+  {
+    "principalTypeEnum": "LOCAL_GROUP", 
+    "name": "test", 
+    "displayName": "Test Group", 
+    "description": "Test group for validation.", 
+    "visibility": "NON_SHARABLE"
+  }, 
+  {
+  "principalTypeEnum": "LOCAL_USER", 
+  "name": "user_1",
+  "displayName": "User 1", 
+  "password": "fakknjfd+23hjJ",
+  "mail": "test.user@thoughtspot.com", 
+  "groupNames": ["test"], 
+  "visibility": "NON_SHARABLE"
+  }
+]
+"""
+        ugs = UsersAndGroups()
+        ugs.load_from_json(json_str=json_str.replace("\n", ""))
+        self.assertTrue(ugs.is_valid())

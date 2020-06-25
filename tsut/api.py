@@ -1,16 +1,3 @@
-import copy
-import json
-import logging
-import requests
-import sys
-import time
-import tempfile
-
-from .model import User, Group, UsersAndGroups
-
-logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
-
 """
 Copyright 2018 ThoughtSpot
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
@@ -24,21 +11,22 @@ TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONIN
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
+import copy
+import json
+import logging
+import requests
+import time
+import tempfile
+
+from .model import User, Group, UsersAndGroups
+from .util import eprint
+
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
 
 # -------------------------------------------------------------------------------------------------------------------
 
 """Classes to work with the TS public user and list APIs"""
-
-# Helper functions. ----------------------------------------------------------------------
-
-
-def eprint(*args, **kwargs):
-    """
-    Prints to standard error similar to regular print.
-    :param args:  Positional arguments.
-    :param kwargs:  Keyword arguments.
-    """
-    print(*args, file=sys.stderr, **kwargs)
 
 
 class UGJsonReader:

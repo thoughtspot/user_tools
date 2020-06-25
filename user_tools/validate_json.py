@@ -1,7 +1,3 @@
-import json
-import argparse
-import sys
-
 """
 Copyright 2018 ThoughtSpot
 
@@ -18,6 +14,11 @@ TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONIN
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
+import argparse
+import json
+import sys
+
+from tsut.model import UsersAndGroups
 
 
 def run_app():
@@ -27,15 +28,23 @@ def run_app():
 
     json_data = ""
     if args.filename:
+        print(f"Validating JSON format and content from {args.filename}")
         with open(args.filename, "r") as infile:
             json_data = infile.read()
-
     else:
+        print(f"Validating JSON format and content from stdin")
         for line in sys.stdin:
             json_data += line
 
     json.loads(json_data)
-    print("valid JSON")  # only prints if valid.
+    print("JSON format appears valid.")  # only prints if valid.
+
+    ugs = UsersAndGroups()
+    ugs.load_from_json(json_str=json_data)
+    if ugs.is_valid():
+        print(f"JSON content appears valid.  There are {ugs.number_groups()} groups and {ugs.number_users()} users.")
+    else:
+        print(f"JSON content does not appear valid.")
 
 
 if __name__ == "__main__":

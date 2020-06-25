@@ -1,8 +1,3 @@
-from collections import OrderedDict, namedtuple
-import copy
-import json
-
-
 """
 Copyright 2018 ThoughtSpot
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
@@ -16,53 +11,13 @@ TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONIN
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
+from collections import OrderedDict, namedtuple
+import copy
+import json
+
+from .util import eprint, public_props, obj_to_json
 
 # -------------------------------------------------------------------------------------------------------------------
-
-"""Classes to work with the TS public user and list APIs"""
-
-# Helper functions. ----------------------------------------------------------------------
-
-
-def public_props(obj):
-    """
-    Returns any property that doesn't start with an _
-    """
-    return (name for name in vars(obj).keys() if not name.startswith("_"))
-
-
-def obj_to_json(obj):
-    """
-    Returns a json string with all of the objects public properties as attributes
-    This function only goes one level deep and does not convert contents of lists,
-    dict, etc.
-    :returns: A JSONS string representation of the object.
-    :rtype: str
-    """
-
-    json_str = "{ "
-
-    first = True
-    for name in public_props(obj):
-        value = getattr(obj, name)  # don't print empty values
-        if not value:
-            continue
-
-        if first:
-            first = False
-        else:
-            json_str += ","
-
-        if value:
-            json_str += f'"{name}":{json.dumps(value)}'
-
-    json_str += "}"
-
-    return json_str
-
-
-# Visibility values for the UI
-# Note:  could use enum in Python 3
 
 
 class Visibility:
@@ -119,6 +74,24 @@ class User:
                 self.groupNames.append(gn)
         self.visibility = visibility
         self.id = user_id
+
+    @staticmethod
+    def create_from_json(json_obj):
+        """
+        Creates a new user from JSON.
+        :param json_obj: The JSON object (parsed JSON).
+        :type json_obj: dict
+        :return: A new user.
+        """
+        name = json_obj.get("name", None)
+        display_name = json_obj.get("displayName", None)
+        mail = json_obj.get("mail", None)
+        password = json_obj.get("password", None)
+        visibility = json_obj.get("visibility", None)
+        group_names = json_obj.get("groupNames", None)
+
+        return User(name=name, display_name=display_name, password=password,
+                    mail=mail, visibility=visibility, group_names=group_names )
 
     def add_group(self, group_name):
         """
@@ -191,6 +164,23 @@ class Group:
         if group_names:
             for gn in group_names:
                 self.groupNames.append(gn)
+
+    @staticmethod
+    def create_from_json(json_obj):
+        """
+        Creates a new user from JSON.
+        :param json_obj: The JSON object (parsed JSON).
+        :type json_obj: dict
+        :return: A new user.
+        """
+        name = json_obj.get("name", None)
+        display_name = json_obj.get("displayName", None)
+        description = json_obj.get("description", None)
+        visibility = json_obj.get("visibility", None)
+        group_names = json_obj.get("groupNames", None)
+
+        return Group(name=name, display_name=display_name, description=description,
+                     visibility=visibility, group_names=group_names )
 
     def add_group(self, group_name):
         """
@@ -399,6 +389,25 @@ class UsersAndGroups:
         json_str += "]"
 
         return json_str
+
+    def load_from_json(self, json_str):
+        """
+        Loads the users and groups from a properly formatted JSON string.  This can add additional users and groups.
+        :param json_str: The json string to load from.
+        :type json_str: str
+        :return: Nothing
+        """
+        ug_json = json.loads(json_str)
+        for obj in ug_json:
+            type = obj.get("principalTypeEnum", None)
+            if type.endswith("_GROUP"):
+                group = Group.create_from_json(obj)
+                self.add_group(group)
+            elif type.endswith("_USER"):
+                user = User.create_from_json(obj)
+                self.add_user(user)
+            else:
+                eprint(f"Unable to load {obj} as a user or group.  Missing or unknown 'principalTypeEnum' value {type}")
 
     def __repr__(self):
         """
