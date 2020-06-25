@@ -41,7 +41,7 @@ def run_app():
 
     ugs = UsersAndGroups()
     ugs.load_from_json(json_str=json_data)
-    if ugs.is_valid():
+    if ugs.is_valid()[0]:
         print(f"JSON content appears valid.  There are {ugs.number_groups()} groups and {ugs.number_users()} users.")
     else:
         print(f"JSON content does not appear valid.")
