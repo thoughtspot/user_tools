@@ -12,6 +12,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 import copy
+import datetime
 import json
 import logging
 import requests
@@ -22,7 +23,7 @@ from .model import User, Group, UsersAndGroups
 from .util import eprint
 
 logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 # -------------------------------------------------------------------------------------------------------------------
 
@@ -179,8 +180,15 @@ class BaseApiInterface:
         :return: A URL that has the correct server info.
         :rtype: str
         """
-        url = BaseApiInterface.SERVER_URL + url
-        return url.format(tsurl=self.tsurl)
+        print(url)
+        if "?" in self.tsurl:
+            url_base, url_params = self.tsurl.split("?")
+            url = BaseApiInterface.SERVER_URL + url + "?" + url_params
+        else:
+            url_base = self.tsurl
+            url = BaseApiInterface.SERVER_URL + url
+
+        return url.format(tsurl=url_base)
 
 
 class SyncUserAndGroups(BaseApiInterface):
@@ -342,6 +350,7 @@ class SyncUserAndGroups(BaseApiInterface):
                         ug_batch.add_group(users_and_groups.get_group(group_name=group_name),
                                            duplicate=UsersAndGroups.IGNORE_ON_DUPLICATE)
 
+                logging.info(f"batch synching {ug_batch.number_users()} users and {ug_batch.number_groups()} groups.")
                 self._sync_users_and_groups(users_and_groups=ug_batch,
                                             apply_changes=apply_changes, remove_deleted=remove_deleted)
 
@@ -415,7 +424,7 @@ class SyncUserAndGroups(BaseApiInterface):
 
         logging.debug("calling %s" % url)
         json_str = users_and_groups.to_json()
-        logging.info("%s" % json_str)
+        logging.debug("%s" % json_str)
         json.loads(json_str)  # do a load to see if it breaks due to bad JSON.
 
         # Get the temp folder from the environment settings, so it will work cross platform.
@@ -434,7 +443,11 @@ class SyncUserAndGroups(BaseApiInterface):
         if self.global_password:
             params["password"] = self.global_password
 
+        start_sync = datetime.datetime.now()
+        logging.info(f"starting sync at {start_sync}")
         response = self.session.post(url, files=params, cookies=self.cookies)
+        end_sync = datetime.datetime.now()
+        logging.info(f"\tsync took {end_sync - start_sync}")
 
         if response.status_code == 200:
             logging.info("Successfully synced users and groups.")
