@@ -20,7 +20,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
-TS_URL = "https://tstest"  # test ThoughtSpot server.
+TS_URL = "https://tstest?disableSAMLRedirect=true"  # test ThoughtSpot server.
 TS_USER = "tsadmin"
 TS_PASSWORD = "admin"
 

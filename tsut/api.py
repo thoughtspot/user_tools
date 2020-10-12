@@ -257,7 +257,6 @@ class SyncUserAndGroups(BaseApiInterface):
                     group_privs = group_priv_api.get_privileges_for_group(group_name=group.name)
                     group.privileges = copy.copy(group_privs)
 
-
             return auag
 
         else:
@@ -379,11 +378,11 @@ class SyncUserAndGroups(BaseApiInterface):
             if not new_ugs.get_group(group_name=group_name): # The group isn't in the new list.
                 old_group = original_ugs.get_group(group_name=group_name)
                 if old_group:  # the group is in the old list, so use that one.
-                    new_ugs.add_group(g=old_group)
+                    new_ugs.add_group(g=old_group, duplicate=UsersAndGroups.IGNORE_ON_DUPLICATE)
                 else:
                     new_ugs.add_group(Group(name=group_name, display_name=group_name,
-                                            description="Implicitely created group."))
-
+                                            description="Implicitly created group."),
+                                      duplicate=UsersAndGroups.IGNORE_ON_DUPLICATE)
 
     @staticmethod
     def __merge_groups_into_new(original_ugs, new_ugs):
@@ -401,6 +400,12 @@ class SyncUserAndGroups(BaseApiInterface):
             original_user = original_ugs.get_user(new_user.name)
             if original_user:
                 new_user.groupNames.extend(original_user.groupNames)
+
+                # make sure the group names are also in the new users and groups.
+                for group_name in new_user.groupNames:
+                    group = original_ugs.get_group(group_name=group_name)
+                    if group:
+                        new_ugs.add_group(g=group, duplicate=UsersAndGroups.OVERWRITE_ON_DUPLICATE)
 
     @api_call
     def _sync_users_and_groups(self, users_and_groups, apply_changes=True, remove_deleted=False):

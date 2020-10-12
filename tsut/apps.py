@@ -421,7 +421,7 @@ class TSUGSyncWriter(TSUGWriter):
     """
     def __init__(self):
         """
-        Creates a new TSUGReader (abstract)
+        Creates a new TSUGSyncWriter for writing users and groups to TS via the API.
         """
         super(TSUGSyncWriter, self).__init__(
             required_arguments=["ts_url", "username", "password"])

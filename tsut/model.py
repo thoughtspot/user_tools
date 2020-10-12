@@ -300,7 +300,7 @@ class UsersAndGroups:
     def add_group(self, g, duplicate=RAISE_ERROR_ON_DUPLICATE):
         """
         Adds a group to the container.  Note that this does not make a copy of the group.
-        :param g: User object to add to the container.
+        :param g: Group object to add to the container.
         :param duplicate: Flag for what to do if there is a duplicate entry.
         """
         group = self.get_group(g.name)
