@@ -1,8 +1,7 @@
 import ast
 import copy
 import json
-from openpyxl import Workbook
-import xlrd  # reading Excel
+from openpyxl import Workbook, load_workbook
 
 from .api import UsersAndGroups, User, Group, eprint
 
@@ -164,7 +163,7 @@ class UGXLSReader:
         :rtype UsersAndGroups
         so that they can be modified prior to validation.
         """
-        self.workbook = xlrd.open_workbook(filepath)
+        self.workbook = load_workbook(filename=filepath, read_only=True)
         if self._verify_file_format():
             self._get_column_indices()
             self._read_users_from_workbook()
@@ -177,14 +176,15 @@ class UGXLSReader:
         :rtype: bool
         """
         is_valid = True
-        sheet_names = self.workbook.sheet_names()
+        sheet_names = self.workbook.sheetnames
         for required_sheet in UGXLSReader.required_sheets:
             if required_sheet not in sheet_names:
                 eprint("Error:  missing sheet %s!" % required_sheet)
                 is_valid = False
             else:
-                sheet = self.workbook.sheet_by_name(required_sheet)
-                header_row = sheet.row_values(rowx=0, start_colx=0)
+                sheet = self.workbook[required_sheet]
+                header_row = [cell.value for cell in list(self.workbook[required_sheet].iter_rows(max_row=1))[0]]
+
                 for required_column in UGXLSReader.required_columns[
                     required_sheet
                 ]:
@@ -201,13 +201,14 @@ class UGXLSReader:
         """
         Reads the sheets to get all of the column indices.  Assumes the format was already checked.
         """
-        sheet_names = self.workbook.sheet_names()
+        sheet_names = self.workbook.sheetnames
         for sheet_name in sheet_names:
             if sheet_name in self.required_sheets:
-                sheet = self.workbook.sheet_by_name(sheet_name)
+                sheet = self.workbook[sheet_name]
                 col_indices = {}
                 ccnt = 0
-                for col in sheet.row_values(rowx=0, start_colx=0):
+                row = [cell.value for cell in list(self.workbook[sheet_name].iter_rows(min_row=1, max_row=2))[0]]
+                for col in row:
                     col_indices[col] = ccnt
                     ccnt += 1
                 self.indices[sheet_name] = col_indices
@@ -217,25 +218,29 @@ class UGXLSReader:
         Reads all the users from the workbook.
         """
 
-        table_sheet = self.workbook.sheet_by_name("Users")
+        table_sheet = self.workbook["Users"]
         indices = self.indices["Users"]
 
-        for row_count in range(1, table_sheet.nrows):
-            row = table_sheet.row_values(rowx=row_count, start_colx=0)
+        header_row = True
+        for row in table_sheet.values:
+            values = list(row)
+            if header_row:  # have to skip the header row.
+                header_row = False
+                continue
 
             # "Name", "Password", "Display Name", "Email", "Description", "Groups", "Visibility"
-            username = row[indices["Name"]]
-            password = row[indices["Password"]]
-            display_name = row[indices["Display Name"]]
-            email = row[indices["Email"]]
+            username = values[indices["Name"]]
+            password = values[indices["Password"]]
+            display_name = values[indices["Display Name"]]
+            email = values[indices["Email"]]
             groups = []
-            if row[indices["Groups"]] and row[
+            if values[indices["Groups"]] and values[
                 indices["Groups"]
             ]:
                 groups = ast.literal_eval(
-                    row[indices["Groups"]]
+                    values[indices["Groups"]]
                 )  # assumes a valid list format, e.g. ["a", "b", ...]
-            visibility = row[indices["Visibility"]]
+            visibility = values[indices["Visibility"]]
 
             try:
                 user = User(
@@ -258,24 +263,29 @@ class UGXLSReader:
         Reads all the groups from the workbook.
         """
 
-        table_sheet = self.workbook.sheet_by_name("Groups")
+        table_sheet = self.workbook["Groups"]
         indices = self.indices["Groups"]
 
-        for row_count in range(1, table_sheet.nrows):
-            row = table_sheet.row_values(rowx=row_count, start_colx=0)
+        header_row = True
+        for row in table_sheet.values:
+            values = list(row)
+            if header_row:  # have to skip the header row.
+                header_row = False
+                continue
+
 
             # Name", "Display Name", "Description", "Groups", "Visibility"
-            group_name = row[indices["Name"]]
-            display_name = row[indices["Display Name"]]
-            description = row[indices["Description"]]
-            visibility = row[indices["Visibility"]]
+            group_name = values[indices["Name"]]
+            display_name = values[indices["Display Name"]]
+            description = values[indices["Description"]]
+            visibility = values[indices["Visibility"]]
 
             groups = []
-            if row[indices["Groups"]] and row[
+            if values[indices["Groups"]] and values[
                 indices["Groups"]
             ]:
                 groups = ast.literal_eval(
-                    row[indices["Groups"]]
+                    values[indices["Groups"]]
                 )  # assumes a valid list format, e.g. ["a", "b", ...]
             try:
                 group = Group(
@@ -291,6 +301,7 @@ class UGXLSReader:
                 )
             except Exception:
                 eprint("Error reading group with name %s" % group_name)
+
 
 class UGCSVReader:
     """

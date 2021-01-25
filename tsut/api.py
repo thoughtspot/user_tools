@@ -143,7 +143,10 @@ class BaseApiInterface:
         self.disable_ssl = disable_ssl
         if disable_ssl:
             self.session.verify = False
-        self.session.headers = {"X-Requested-By": "ThoughtSpot"}
+        self.session.headers = {
+            "X-Requested-By": "ThoughtSpot",
+            "User-Agent": "TS User Tools 1.0"
+        }
 
     def login(self):
         """
