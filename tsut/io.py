@@ -135,14 +135,15 @@ class UGXLSReader:
             "Display Name",
             "Email",
             "Groups",
-            "Visibility"
+            "Visibility",
         ],
         "Groups": [
             "Name",
             "Display Name",
             "Description",
             "Groups",
-            "Visibility"
+            "Visibility",
+            "Privileges"
         ],
     }
 
@@ -274,7 +275,7 @@ class UGXLSReader:
                 continue
 
 
-            # Name", "Display Name", "Description", "Groups", "Visibility"
+            # Name", "Display Name", "Description", "Groups", "Visibility", "Privileges"
             group_name = values[indices["Name"]]
             display_name = values[indices["Display Name"]]
             description = values[indices["Description"]]
@@ -287,6 +288,15 @@ class UGXLSReader:
                 groups = ast.literal_eval(
                     values[indices["Groups"]]
                 )  # assumes a valid list format, e.g. ["a", "b", ...]
+
+            privileges = []
+            if values[indices["Privileges"]] and values[
+                indices["Privileges"]
+            ]:
+                privileges = ast.literal_eval(
+                    values[indices["Privileges"]]
+                )  # assumes a valid list format, e.g. ["a", "b", ...]
+
             try:
                 group = Group(
                     name=group_name,
@@ -294,6 +304,7 @@ class UGXLSReader:
                     description=description,
                     group_names=groups,
                     visibility=visibility,
+                    privileges=privileges
                 )
                 # The format should be consistent with only one group per line.
                 self.users_and_groups.add_group(

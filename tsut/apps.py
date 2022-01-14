@@ -444,6 +444,8 @@ class TSUGSyncWriter(TSUGWriter):
                             help="Creates user groups if they don't exist and are not specified.")
         parser.add_argument("--merge_groups", default=False, action="store_true",
                             help="Merge user groups with ones they are already in instead of replacing.")
+        parser.add_argument("--set_privileges", default=False, action="store_true",
+                            help="Replaces the current privileges for the groups with the new ones.")
 
     def write_user_and_groups(self, args, ugs):
         """
@@ -462,7 +464,8 @@ class TSUGSyncWriter(TSUGWriter):
                                    remove_deleted=args.remove_deleted,
                                    batch_size=args.batch_size,
                                    merge_groups=args.merge_groups,
-                                   create_groups=args.create_groups)
+                                   create_groups=args.create_groups,
+                                   set_group_privileges=args.set_privileges)
 
 
 class TSUserGroupSyncApp:

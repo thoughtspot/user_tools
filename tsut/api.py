@@ -150,7 +150,7 @@ class BaseApiInterface:
 
     def login(self):
         """
-        Log into the ThoughtSpot server.
+        # Log into the ThoughtSpot server.
         """
         url = self.format_url(SyncUserAndGroups.LOGIN_URL)
         response = self.session.post(
@@ -304,7 +304,8 @@ class SyncUserAndGroups(BaseApiInterface):
                 )
 
     def sync_users_and_groups(self, users_and_groups, apply_changes=True,
-                              remove_deleted=False, batch_size=-1, create_groups=False, merge_groups=False):
+                              remove_deleted=False, batch_size=-1,
+                              create_groups=False, merge_groups=False, set_group_privileges=False):
         """
         Syncs users and groups.
         :param users_and_groups: List of users and groups to sync.
@@ -321,6 +322,8 @@ class SyncUserAndGroups(BaseApiInterface):
         :type create_groups: bool
         :param merge_groups: Flag to indicate if groups should be merged.  True means add to old groups.
         :type merge_groups: bool
+        :param set_group_privileges: Flag that indicates privileges should be set for the groups.
+        :type set_group_privileges: bool
         """
 
         if not apply_changes:
@@ -360,6 +363,11 @@ class SyncUserAndGroups(BaseApiInterface):
         else:
             self._sync_users_and_groups(users_and_groups=users_and_groups,
                                         apply_changes=apply_changes, remove_deleted=remove_deleted)
+
+        # bdb sync the privileges if requested.
+        if set_group_privileges:
+            self._set_group_privileges(users_and_groups=users_and_groups, apply_changes=apply_changes)
+
 
     @staticmethod
     def __add_all_user_groups(original_ugs, new_ugs):
@@ -409,6 +417,60 @@ class SyncUserAndGroups(BaseApiInterface):
                     group = original_ugs.get_group(group_name=group_name)
                     if group:
                         new_ugs.add_group(g=group, duplicate=UsersAndGroups.OVERWRITE_ON_DUPLICATE)
+
+    @api_call
+    def _set_group_privileges(self, users_and_groups, apply_changes=False):
+        """
+        Sets the group privileges for the groups.  Assumes the group exists and the privileges are included.
+        Setting privileges is a two step process, first, you need to remove the old ones in case one was removed.  This
+        is more efficient than removing them individually.  Second, you need to add back the privileges to set.  Note
+        that the v1 API sets a privilege for a set of groups instead of a set of privileges for a single group.
+        :param users_and_groups: List of users and groups to use for syncing.
+        :type users_and_groups: UsersAndGroups
+        :param apply_changes: If true, the group privileges will be updated.  If not, then messages will display only.
+        :type apply_changes: bool
+        :return: None
+        """
+
+        # Get a list of the groups that are being set.
+        group_names = []
+        for group in users_and_groups.get_groups():
+            if group.name not in ["All", "Administrator"]:  # don't allow system groups to be impacted.
+                group_names.append(group.name)
+
+        if not group_names:
+            return
+
+        # API wrapper for setting privileges on groups.
+        set_group_privs_api = SetGroupPrivilegesAPI(tsurl=self.tsurl, username=self.username, password=self.password)
+
+        # Remove any privileges for the groups.
+        for priv in Privileges.AllPrivileges:
+            print(f"Removing {priv} to {group_names}")
+            if apply_changes:
+                try:
+                    set_group_privs_api.remove_privilege(groups=group_names, privilege=priv)
+                except Exception:
+                    print("error - ignoring")
+
+        # Add back the privileges for all groups.  This requires mapping each privilege to the groups that have the
+        # privilege and then calling for that privilege
+
+        for priv in Privileges.AllPrivileges:
+            groups_with_priv = []
+            for group_name in group_names:
+                group = users_and_groups.get_group(group_name=group_name)
+                if group.privileges and priv in group.privileges:
+                    groups_with_priv.append(group_name)
+
+            if groups_with_priv:
+                print(f"Adding {priv} from groups {groups_with_priv}")
+
+                if apply_changes:
+                    try:
+                        set_group_privs_api.add_privilege(groups=groups_with_priv, privilege=priv)
+                    except Exception:
+                        print("Ignoring exception")
 
     @api_call
     def _sync_users_and_groups(self, users_and_groups, apply_changes=True, remove_deleted=False):
@@ -636,16 +698,31 @@ class Privileges:
     """
     Contains the various privileges that groups can have.
     """
-    IS_ADMINSTRATOR = "ADMINISTRATION"
+    CAN_BYPASS_RLS = "BYPASSRLS"
+    CAN_SCHEDULE_PINBOARDS = "JOBSCHEDULING"
+    IS_DEVELOPER = "DEVELOPER"
+    CAN_MANAGE_DATA = "DATAMANAGEMENT"
     CAN_UPLOAD_DATA = "USERDATAUPLOADING"
+    CAN_USE_EXPERIMENTAL_FEATURES = "EXPERIMENTALFEATUREPRIVILEGE"
+    CAN_USE_SPOTIQ = "A3ANALYSIS"
+    IS_ADMINSTRATOR = "ADMINISTRATION"
+    CAN_USE_R = "RANALYSIS"
     CAN_DOWNLOAD_DATA = "DATADOWNLOADING"
     CAN_SHARE_WITH_ALL = "SHAREWITHALL"
-    CAN_MANAGE_DATA = "DATAMANAGEMENT"
-    CAN_SCHEDULE_PINBOARDS = "JOBSCHEDULING"
-    CAN_USE_SPOTIQ = "A3ANALYSIS"
-    CAN_ADMINISTER_RLS = "BYPASSRLS"
-    CAN_AUTHOR = "AUTHORING"
-    CAN_MANAGE_SYSTEM = "SYSTEMMANAGEMENT"
+
+    AllPrivileges = [
+        CAN_BYPASS_RLS,
+        CAN_SCHEDULE_PINBOARDS,
+        IS_DEVELOPER,
+        CAN_MANAGE_DATA,
+        CAN_UPLOAD_DATA,
+        CAN_USE_EXPERIMENTAL_FEATURES,
+        CAN_USE_SPOTIQ,
+        IS_ADMINSTRATOR,
+        CAN_USE_R,
+        CAN_DOWNLOAD_DATA,
+        CAN_SHARE_WITH_ALL,
+    ]
 
 
 class SetGroupPrivilegesAPI(BaseApiInterface):
