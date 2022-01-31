@@ -446,6 +446,8 @@ class TSUGSyncWriter(TSUGWriter):
                             help="Merge user groups with ones they are already in instead of replacing.")
         parser.add_argument("--set_privileges", default=False, action="store_true",
                             help="Replaces the current privileges for the groups with the new ones.")
+        parser.add_argument("--update_passwords", default=False, action="store_true",
+                            help="For existing users, update the password if one is provided.")
 
     def write_user_and_groups(self, args, ugs):
         """
@@ -465,7 +467,8 @@ class TSUGSyncWriter(TSUGWriter):
                                    batch_size=args.batch_size,
                                    merge_groups=args.merge_groups,
                                    create_groups=args.create_groups,
-                                   set_group_privileges=args.set_privileges)
+                                   set_group_privileges=args.set_privileges,
+                                   update_passwords=args.update_passwords)
 
 
 class TSUserGroupSyncApp:

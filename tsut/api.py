@@ -305,7 +305,8 @@ class SyncUserAndGroups(BaseApiInterface):
 
     def sync_users_and_groups(self, users_and_groups, apply_changes=True,
                               remove_deleted=False, batch_size=-1,
-                              create_groups=False, merge_groups=False, set_group_privileges=False):
+                              create_groups=False, merge_groups=False,
+                              set_group_privileges=False, update_passwords=False):
         """
         Syncs users and groups.
         :param users_and_groups: List of users and groups to sync.
@@ -324,6 +325,8 @@ class SyncUserAndGroups(BaseApiInterface):
         :type merge_groups: bool
         :param set_group_privileges: Flag that indicates privileges should be set for the groups.
         :type set_group_privileges: bool
+        :param update_passwords: Flag to update the password of existing users.  Password must be provided for the user.
+        :type update_passwords: bool
         """
 
         if not apply_changes:
@@ -368,6 +371,11 @@ class SyncUserAndGroups(BaseApiInterface):
         if set_group_privileges:
             self._set_group_privileges(users_and_groups=users_and_groups, apply_changes=apply_changes)
 
+        # bdb if the update passwords flag was set, update for each of the users that has a password.
+        if update_passwords and apply_changes:
+            for user in users_and_groups.get_users():
+                if (user.password):
+                    self.update_user_password(userid=user.name, admin_password=self.password, password=user.password)
 
     @staticmethod
     def __add_all_user_groups(original_ugs, new_ugs):
@@ -664,13 +672,13 @@ class SyncUserAndGroups(BaseApiInterface):
         self.delete_groups([groupname])  # just call the list method.
 
     @api_call
-    def update_user_password(self, userid, currentpassword, password):
+    def update_user_password(self, userid, admin_password, password):
         """
         Updates the password for a user.
         :param userid: User id for the user to change the password for.
         :type userid: str
-        :param currentpassword: Password for the logged in user with admin privileges.
-        :type currentpassword: str
+        :param admin_password: Password for the logged in user with admin privileges.
+        :type admin_password: str
         :param password: New password for the user.
         :type password: str
         """
@@ -678,7 +686,7 @@ class SyncUserAndGroups(BaseApiInterface):
         url = self.format_url(SyncUserAndGroups.UPDATE_PASSWORD_URL)
         params = {
             "name": userid,
-            "currentpassword": currentpassword,
+            "currentpassword": admin_password,
             "password": password,
         }
 
@@ -686,6 +694,8 @@ class SyncUserAndGroups(BaseApiInterface):
 
         if response.status_code == 204:
             logging.info("Successfully updated password for %s." % userid)
+        elif response.status_code == 500 and "New password cannot be the same as current password" in response.text:
+            logging.warning(f"Unable to update password for {userid} because it didn't change.")
         else:
             logging.error("Failed to update password for %s." % userid)
             raise requests.ConnectionError(
