@@ -43,8 +43,8 @@ def obj_to_json(obj):
 
     first = True
     for name in public_props(obj):
-        value = getattr(obj, name)  # don't print empty values
-        if not value:
+        value = getattr(obj, name)  # don't print empty values except groupNames
+        if not value and not name == "groupNames":
             continue
 
         if first:
@@ -52,8 +52,7 @@ def obj_to_json(obj):
         else:
             json_str += ","
 
-        if value:
-            json_str += f'"{name}":{json.dumps(value)}'
+        json_str += f'"{name}":{json.dumps(value)}'
 
     json_str += "}"
 
