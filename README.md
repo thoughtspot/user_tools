@@ -1,16 +1,21 @@
 # ThoughtSpot User Tool
 
 ThoughtSpot user tools are a collection of tools for managing users and groups in ThoughtSpot as well as working with 
-the ThoughtSpot Web APIs that manage users and groups.  The tools and Web APIs are all written in Python and 
+the ThoughtSpot Web APIs that contain users and groups.  The tools and Web APIs are all written in Python and 
 require a Python environment in which to run.  The remainder of this document will describe how to deploy and use 
-the tools and how to write your own custom applications based on the API wrappers.
+the tools and write your own custom applications based on the API wrappers.
+
+## Deprecation Notice
+
+TS User Tools is no longer maintained.  You can still use it if it fits your needs, but the APIs may change and break the tools.  
+You should consider using [CS Tools User Management](https://thoughtspot.github.io/cs_tools/), which provides many of the same and new capabilities.
 
 ## Packages and scripts
 
 The tools can be split into two broad categories.  The first category contains the scripts that you can run to directly do things.  
 For example, the `get_users` script will let you get all of the users and groups from a running ThoughtSpot cluster.
 
-The second category are the ThoughtSpot Web API Python wrappers.  These are all contained in the tsut package and 
+The second category is the ThoughtSpot Web API Python wrappers.  These are all contained in the tsut package and 
 categorized into modules based on functionality, such as writing sync applications, modeling users and groups and 
 calling the APIs from Python scripts.
 
@@ -21,7 +26,7 @@ User Tools is installed with the same process as other TS Python tools.
 You can install using `pip install --upgrade git+https://github.com/thoughtspot/user_tools`
 
 See the general [documentation](https://github.com/thoughtspot/community-tools/tree/master/python_tools) on setting 
-up your environment and installing using `pip`.
+up your environment and install using `pip`.
 
 ## Running the pre-built tools
 
@@ -37,10 +42,10 @@ The user tools currently consist of four scripts:
 2. `get_users` that can get users and groups from a ThoughtSpot cluster in multiple formats.
 3. `sync_from_excel` that syncs ThoughtSpot from a properly formatted Excel document.  The format for the 
 Excel document is the same as the one created by `get_users`.
-4. `transfer_ownership` that transfers all of the objects owned by one one user to another.  Partial transfer of
+4. `transfer_ownership` transfers all of the objects owned by one user to another.  Partial transfer of
 ownership is not currently supported.
 
-You might also notice a validate_json file that is a simple, command line validator or JSON.  Use if 
+You might also notice a validate_json file that is a simple, command-line validator or JSON.  Use if 
 you like.
 
 ### delete_ugs
